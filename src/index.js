@@ -1,11 +1,10 @@
-import finalhandler from 'finalhandler';
-import Router from 'router';
+const finalhandler = require('finalhandler');
+const Router = require('router');
 
 class SimpleRouterBuilder {
   constructor() {
     this._childRouters = [];
-    this._rootRouter = Router();
-    this._rootHandler = this._defaultHandlers()['200'];
+    this._rootHandler = SimpleRouterBuilder._DEFAULT_HANDLERS['200'];
   }
 
   withChildRouter(mountPath, router) {
@@ -14,7 +13,7 @@ class SimpleRouterBuilder {
   }
 
   withRootHandler(handler) {
-    const defaults = this._defaultHandlers();
+    const defaults = SimpleRouterBuilder._DEFAULT_HANDLERS;
 
     if (typeof handler === 'function') {
       this._rootHandler = handler;
@@ -28,42 +27,50 @@ class SimpleRouterBuilder {
   }
 
   build() {
+    const rootRouter = Router();
+
     for (const { path, router } of this._childRouters) {
-      this._rootRouter.use(path, router);
+      rootRouter.use(path, router);
     }
 
-    this._rootRouter.use('/', this._rootHandler);
+    rootRouter.use('/', this._rootHandler);
 
     return (req, res) => {
-      this._rootRouter(req, res, finalhandler(req, res));
+      rootRouter(req, res, finalhandler(req, res));
     };
   }
 
   getRootRouter() {
-    return this._rootRouter;
+    const rootRouter = Router();
+
+    for (const { path, router } of this._childRouters) {
+      rootRouter.use(path, router);
+    }
+
+    rootRouter.use('/', this._rootHandler);
+
+    return rootRouter;
   }
 
-  _defaultHandlers() {
-    return {
-      '200': (req, res) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ message: 'service is running' }));
-      },
-      '403': (req, res) => {
-        res.statusCode = 403;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ message: 'forbidden' }));
-      },
-    };
-  }
+  static _DEFAULT_HANDLERS = {
+    '200': (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ message: 'service is running' }));
+    },
+    '403': (req, res) => {
+      res.statusCode = 403;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ message: 'forbidden' }));
+    }
+  };
 }
 
-function newEmptyRouter() {
+function NewEmptyRouter() {
   return Router();
 }
 
-export {
+module.exports = {
   SimpleRouterBuilder,
-  newEmptyRouter
+  NewEmptyRouter
 };
