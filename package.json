@@ -2,7 +2,6 @@
   "name": "simple-router-builder",
   "version": "0.0.1",
   "description": "Minimal opinionated router composition utility built on router (standalone express router) npm package and finalhandler npm package.",
-  "type": "module",
   "main": "./src/index.js",
   "exports": {
     ".": {
