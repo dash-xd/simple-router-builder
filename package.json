@@ -3,11 +3,6 @@
   "version": "0.0.1",
   "description": "Minimal opinionated router composition utility built on router (standalone express router) npm package and finalhandler npm package.",
   "main": "./src/index.js",
-  "exports": {
-    ".": {
-      "import": "./src/index.js"
-    }
-  },
   "files": [
     "src"
   ],
